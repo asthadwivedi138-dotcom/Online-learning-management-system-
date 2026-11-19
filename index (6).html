@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnHub - LMS</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+*{box-sizing:border-box}
+
+body{
+  font-family:'Poppins',Arial;
+  margin:0;
+  background:#081b29;
+  color:white;
+}
+
+nav{
+  background:#081b29;
+  padding:18px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #112e42;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+nav b{color:#00abf0;font-size:22px}
+.app-layout{display:flex;min-height:calc(100vh - 65px)}
+
+.sidebar{
+  width:230px;
+  flex-shrink:0;
+  background:#081b29;
+  border-right:1px solid #112e42;
+  padding:18px 12px;
+  position:sticky;
+  top:65px;
+  height:calc(100vh - 65px);
+  overflow-y:auto;
+}
+
+.sidebar-title{
+  font-size:12px;
+  color:#00abf0;
+  font-weight:700;
+  margin:20px 12px 8px;
+}
+
+.side-btn{
+  display:block;
+  width:100%;
+  padding:12px;
+  margin:5px 0;
+  background:transparent;
+  color:white;
+  border:1px solid transparent;
+  border-radius:8px;
+  text-align:left;
+  font-family:inherit;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:none;
+}
+
+.side-btn:hover,.side-btn.active{
+  background:#112e42;
+  border-color:#0f3a57;
+  color:#00abf0;
+}
+
+.main-content{flex:1;min-width:0;padding:20px}
+.container{max-width:1000px;margin:auto}
+
+.card{
+  background:#112e42;
+  padding:22px;
+  border-radius:12px;
+  margin:15px 0;
+  border:1px solid #0f3a57;
+  box-shadow:0 0 15px rgba(0,171,240,0.15);
+}
+
+h3{color:#00abf0;margin-top:0}
+
+.course-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+
+.course-card{
+  background:#081b29;
+  border:1px solid #00abf0;
+  border-radius:10px;
+  padding:16px;
+}
+
+.course-icon{font-size:30px}
+.course-info{color:#ffd166;font-size:13px;margin:8px 0 12px}
+
+.list-box{
+  background:#081b29;
+  border:1px solid #00abf0;
+  border-radius:8px;
+  padding:12px;
+  margin:8px 0;
+}
+
+.q-box{
+  background:#0a2538;
+  border-left:4px solid #00abf0;
+  padding:10px;
+  margin:6px 0;
+  border-radius:6px;
+  font-size:13.5px;
+  line-height:1.5;
+}
+
+.note-box{
+  background:#081b29;
+  border:1px dashed #00abf0;
+  padding:14px;
+  border-radius:8px;
+  margin:10px 0;
+  font-size:13.5px;
+  line-height:1.8;
+}
+
+.note-box h4{color:#00abf0;margin:5px 0}
+.note-box pre{
+  background:#0a2538;
+  padding:12px;
+  border-radius:6px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  color:#eaf7ff;
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  background:#081b29;
+  border:1.5px solid #00abf0;
+  border-radius:8px;
+  color:white;
+}
+
+button{
+  background:#00abf0;
+  color:#081b29;
+  padding:11px 22px;
+  border-radius:25px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 0 10px #00abf0;
+  border:0;
+}
+
+.hidden{display:none!important}
+
+.module-header{
+  background:#081b29;
+  border:1.5px solid #00abf0;
+  padding:15px;
+  border-radius:10px;
+  cursor:pointer;
+  margin:10px 0;
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+
+.module-header:hover{background:#0f2e45}
+.module-content{display:none;padding:10px 0}
+.module-content.active{display:block}
+
+.quiz-q{
+  background:#081b29;
+  border:1px solid #ffd166;
+  border-radius:8px;
+  padding:12px;
+  margin:8px 0;
+}
+
+.section{scroll-margin-top:85px}
+
+@media(max-width:700px){
+  .app-layout{display:block}
+  .sidebar{
+    position:sticky;
+    top:65px;
+    width:100%;
+    height:auto;
+    display:flex;
+    overflow-x:auto;
+    padding:8px;
+    z-index:9;
+  }
+  .sidebar-title{display:none}
+  .side-btn{width:auto;flex-shrink:0;white-space:nowrap}
+  .main-content{padding:10px}
+  .card{padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div><b>LearnHub LMS</b></div>
+  <div>
+    <span id="userInfo"></span>
+    <button id="logoutBtn" class="hidden">Logout</button>
+  </div>
+</nav>
+
+<!-- LOGIN / REGISTER -->
+<div id="authSection" class="card" style="max-width:520px;margin:30px auto">
+  <h2 style="color:#00abf0;text-align:center">Login / Register</h2>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <select id="role">
+    <option value="student">Student</option>
+    <option value="instructor">Instructor</option>
+  </select>
+
+  <br><br>
+  <button id="registerBtn">Register</button>
+  <button id="loginBtn">Login</button>
+  <p id="authMsg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="app-layout hidden">
+
+  <aside class="sidebar">
+    <div class="sidebar-title">LEARNING</div>
+
+    <button class="side-btn active" data-target="home">🏠 Dashboard</button>
+    <button class="side-btn" data-target="courses">📚 All Courses</button>
+    <button class="side-btn" data-target="notes">📘 Notes Channel</button>
+    <button class="side-btn" data-target="assignments">📝 Assignments</button>
+    <button class="side-btn" data-target="quizzes">🧠 Quizzes</button>
+
+    <div class="sidebar-title">COMMUNITY</div>
+    <button class="side-btn" data-target="assignments">💬 Learning Activities</button>
+  </aside>
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- DASHBOARD HOME -->
+      <section id="home" class="card section">
+        <h2 style="color:#00abf0">Welcome to LearnHub LMS!</h2>
+        <p>Continue your learning journey by exploring courses, notes, assignments and quizzes.</p>
+      </section>
+
+      <!-- COURSES -->
+      <section id="courses" class="card section">
+        <h3>📚 1. All Courses - 4 Courses</h3>
+
+        <div class="course-grid">
+
+          <div class="course-card">
+            <div class="course-icon">💻</div>
+            <h4>1. C Programming</h4>
+            <p>Learn programming fundamentals, structures, pointers, file handling, and dynamic memory allocation.</p>
+            <div class="course-info">📖 Beginner Level</div>
+            <button onclick="document.getElementById('notes').scrollIntoView({behavior:'smooth'});">View Notes</button>
+          </div>
+
+          <div class="course-card">
+            <div class="course-icon">🐍</div>
+            <h4>2. Python Programming</h4>
+            <p>Explore Python basics, classes and objects, dictionaries, file handling, and Flask/Django backend development.</p>
+            <div class="course-info">📖 Beginner to Intermediate</div>
+            <button onclick="document.getElementById('notes').scrollIntoView({behavior:'smooth'});">View Notes</button>
+          </div>
+
+          <div class="course-card">
+            <div class="course-icon">☕</div>
+            <h4>3. Java Programming</h4>
+            <p>Study OOP concepts, constructors, multithreading, JDBC, and GUI development using Swing and AWT.</p>
+            <div class="course-info">📖 Programming</div>
+            <button onclick="document.getElementById('notes').scrollIntoView({behavior:'smooth'});">View Notes</button>
+          </div>
+
+          <div class="course-card">
+            <div class="course-icon">🌐</div>
+            <h4>4. Web Technology</h4>
+            <p>Learn HTML5, CSS3, JavaScript, responsive design, local storage, and the Fetch API.</p>
+            <div class="course-info">📖 Web Development</div>
+            <button onclick="document.getElementById('notes').scrollIntoView({behavior:'smooth'});">View Notes</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- NOTES -->
+      <section id="notes" class="card section">
+        <h3>📘 2. Notes Channel</h3>
+
+        <!-- C PROGRAMMING -->
+        <div class="module-header" onclick="toggleModule('notes-c')">
+          📄 C Programming Notes <span>▼</span>
+        </div>
+        <div id="notes-c" class="module-content">
+          <div class="note-box">
+            <h4>📄 C Programming Notes</h4>
+
+            <b>1. Structure in C</b>
+            <p>A structure is a user-defined data type used to group different types of variables under one name.</p>
+            <pre>struct Student {
+    int id;
+    char name[50];
+    float marks;
+};</pre>
+
+            <b>2. Pointers</b>
+            <p>A pointer stores the memory address of another variable.</p>
+            <pre>int number = 10;
+int *ptr = &amp;number;
+printf("%d", *ptr);</pre>
+
+            <b>3. Dynamic Memory Allocation</b>
+            <p>Dynamic memory allocation reserves memory during program execution. Common functions are malloc(), calloc(), realloc() and free().</p>
+            <pre>int *ptr = malloc(5 * sizeof(int));
+
+if (ptr != NULL) {
+    ptr[0] = 100;
+    free(ptr);
+}</pre>
+
+            <b>4. File Handling</b>
+            <p>File handling stores and retrieves information from files using functions such as fopen(), fprintf() and fclose().</p>
+            <pre>FILE *fp = fopen("student.txt", "w");
+
+if (fp != NULL) {
+    fprintf(fp, "Welcome to LearnHub");
+    fclose(fp);
+}</pre>
+
+            <b>5. Important Points</b>
+            <ul>
+              <li>Structures group related data of different types.</li>
+              <li>Pointers store memory addresses.</li>
+              <li>Check whether memory allocation succeeds.</li>
+              <li>Use free() to release dynamically allocated memory.</li>
+              <li>Use fclose() to close files.</li>
+            </ul>
+
+            <h3>6. Functions in C</h3>
+            <p>A function is a block of code that performs a specific task. Functions divide a large program into smaller parts and make it easier to understand, test, and reuse. C provides library functions such as printf() and scanf(). Programmers can also create their own functions.</p>
+            <pre><code>int add(int a, int b) {
+    return a + b;
+}</code></pre>
+
+            <h3>7. Arrays in C</h3>
+            <p>An array stores multiple values of the same data type using a single variable name. Each element is accessed using an index starting from 0. Arrays are useful for storing student marks, numbers, and other collections of data.</p>
+            <pre><code>int marks[3] = {80, 85, 90};
+printf("%d", marks[0]);</code></pre>
+
+            <h3>8. Loops in C</h3>
+            <p>Loops execute a block of code repeatedly. C supports for, while, and do-while loops. A for loop is useful when the number of repetitions is known. Loops reduce repeated code and make programs more efficient.</p>
+            <pre><code>for(int i = 1; i &lt;= 5; i++) {
+    printf("%d ", i);
+}</code></pre>
+
+            <h3>9. Conditional Statements</h3>
+            <p>Conditional statements allow a program to make decisions. The if statement executes code when a condition is true. The if-else statement provides another action when the condition is false.</p>
+            <pre><code>int age = 18;
+if(age &gt;= 18) {
+    printf("Eligible to vote");
+} else {
+    printf("Not eligible");
+}</code></pre>
+
+            <h3>10. Advantages of C</h3>
+            <p>C is a fast and efficient programming language. It supports structured programming, pointers, arrays, and functions. It is commonly used in operating systems, embedded systems, and other applications where performance is important.</p>
+
+          </div>
+        </div>
+
+        <!-- PYTHON PROGRAMMING -->
+        <div class="module-header" onclick="toggleModule('notes-python')">
+          📄 Python Programming Notes <span>▼</span>
+        </div>
+        <div id="notes-python" class="module-content">
+          <div class="note-box">
+            <h4>📄 Python Programming Notes</h4>
+
+            <b>1. Class and Object</b>
+            <p>A class is a blueprint for creating objects. An object is an instance of a class.</p>
+            <pre>class Course:
+    def __init__(self, name):
+        self.name = name
+
+    def display(self):
+        print(self.name)
+
+course = Course("Python")
+course.display()</pre>
+
+            <b>2. List, Tuple and Dictionary</b>
+            <ul>
+              <li><b>List:</b> Ordered and mutable; uses [].</li>
+              <li><b>Tuple:</b> Ordered and immutable; uses ().</li>
+              <li><b>Dictionary:</b> Stores key-value pairs; uses {}.</li>
+            </ul>
+            <pre>courses = ["C", "Python", "Java"]
+days = ("Monday", "Tuesday")
+student = {"name": "Astha", "marks": 85}
+
+print(courses[0])
+print(student["name"])</pre>
+
+            <b>3. File Handling</b>
+            <p>Python uses open() to open files. Common modes are r, w, a and x.</p>
+            <pre>with open("notes.txt", "w") as file:
+    file.write("LearnHub Python Notes")
+
+with open("notes.txt", "r") as file:
+    print(file.read())</pre>
+
+            <b>4. Exception Handling</b>
+            <p>try-except handles errors without abruptly stopping the program.</p>
+            <pre>try:
+    number = int(input("Enter a number: "))
+    print(10 / number)
+except ValueError:
+    print("Please enter a valid number")
+except ZeroDivisionError:
+    print("Cannot divide by zero")</pre>
+
+            <b>5. Flask and Django</b>
+            <p>Flask is a lightweight Python web framework. Django provides built-in features for web development. Both can be used to build an LMS backend.</p>
+
+            <h3>6. Functions in Python</h3>
+            <p>A function is a reusable block of code that performs a specific task. Functions help divide a program into smaller parts, reduce code repetition, and make programs easier to understand. In Python, functions are defined using the def keyword. A function can accept parameters and return a result using the return statement.</p>
+            <pre><code>def add(a, b):
+    return a + b
+
+result = add(10, 20)
+print(result)</code></pre>
+            <p>In this example, add() accepts two numbers and returns their sum. Functions are useful when the same operation needs to be performed multiple times.</p>
+
+            <h3>7. Loops in Python</h3>
+            <p>Loops are used to execute statements repeatedly. Python provides for loops and while loops. A for loop is commonly used to iterate over a sequence such as a list or string. A while loop continues executing as long as its condition remains true.</p>
+            <pre><code>for course in ["C", "Python", "Java"]:
+    print(course)
+
+count = 1
+while count &lt;= 3:
+    print(count)
+    count += 1</code></pre>
+            <p>Loops reduce repetitive code and are useful for processing collections, repeating calculations, and automating tasks.</p>
+
+            <h3>8. Object-Oriented Programming</h3>
+            <p>Object-Oriented Programming (OOP) is a programming approach based on classes and objects. A class defines the properties and behavior of objects. An object is an instance of a class. Python supports important OOP concepts such as inheritance, encapsulation, polymorphism, and abstraction.</p>
+            <pre><code>class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def display(self):
+        print(self.name)
+
+student = Student("Astha")
+student.display()</code></pre>
+            <p>Here, Student is a class, and student is an object. The __init__() method initializes the object's data, while display() prints the student's name. OOP helps organize larger programs into reusable components.</p>
+
+            <h3>9. Modules and Packages</h3>
+            <p>A module is a Python file containing reusable code such as functions, classes, and variables. Modules allow programmers to organize code and use it in different programs. Python provides built-in modules such as math, random, and datetime.</p>
+            <p>A package is a way to organize related modules in a directory. Modules and packages make large projects easier to maintain and help avoid writing the same code repeatedly.</p>
+            <pre><code>import math
+
+print(math.sqrt(25))
+print(math.pi)</code></pre>
+
+            <h3>10. Advantages of Python</h3>
+            <ul>
+              <li>Python has simple and readable syntax, making it suitable for beginners.</li>
+              <li>It supports procedural, functional, and object-oriented programming.</li>
+              <li>It has a large collection of libraries and frameworks.</li>
+              <li>Python is used in web development, automation, data analysis, and artificial intelligence.</li>
+              <li>It supports file handling, database connectivity, and rapid application development.</li>
+            </ul>
+            <p>Python is widely used because it allows developers to build applications with relatively little code. However, performance and memory usage should be considered when choosing it for a particular project.</p>
+
+            <h3>6. Introduction to Python Programming</h3>
+            <p>Python is a high-level, interpreted, general-purpose programming language. It was created by Guido van Rossum and first released in 1991. Python is popular because its syntax is simple, readable, and easy to understand. It is used in web development, data science, artificial intelligence, machine learning, automation, scientific computing, and software development.</p>
+
+            <p>Python programs are generally shorter and easier to read than programs written in many other programming languages. Python supports procedural, object-oriented, and functional programming styles. It also provides a large standard library and many external packages.</p>
+
+            <h3>7. Features of Python</h3>
+            <ul>
+              <li><b>Easy to Learn:</b> Python has simple and readable syntax.</li>
+              <li><b>Interpreted Language:</b> Python code is executed by the Python interpreter.</li>
+              <li><b>High-Level Language:</b> Programmers do not need to manage most low-level hardware details.</li>
+              <li><b>Portable:</b> Python programs can run on different operating systems when the required environment is available.</li>
+              <li><b>Open Source:</b> Python is freely available to use and distribute under its licence.</li>
+              <li><b>Object-Oriented:</b> Python supports classes, objects, inheritance, and polymorphism.</li>
+              <li><b>Large Standard Library:</b> Python includes modules for files, mathematics, dates, networking, and more.</li>
+              <li><b>Dynamic Typing:</b> Variable types are determined at runtime.</li>
+              <li><b>Extensible:</b> Python can work with libraries and components written in other languages.</li>
+            </ul>
+
+            <h3>8. Applications of Python</h3>
+            <p>Python is used in many fields of computer science and information technology.</p>
+            <ul>
+              <li><b>Web Development:</b> Frameworks such as Django and Flask are used to build web applications.</li>
+              <li><b>Data Science:</b> Libraries such as Pandas and NumPy help analyse and process data.</li>
+              <li><b>Artificial Intelligence:</b> Python is widely used to develop AI-based applications.</li>
+              <li><b>Machine Learning:</b> Libraries help train models and make predictions from data.</li>
+              <li><b>Automation:</b> Python can automate repetitive tasks such as renaming files and processing reports.</li>
+              <li><b>Desktop Applications:</b> Libraries such as Tkinter can be used to create graphical applications.</li>
+              <li><b>Scientific Computing:</b> Python supports numerical calculations, simulations, and research.</li>
+              <li><b>Cybersecurity:</b> Python can help with authorised security testing and log analysis.</li>
+            </ul>
+
+            <h3>9. Installing Python and Running a Program</h3>
+            <p>To run Python programs, install Python from the official Python website and ensure that the interpreter is available on your computer. An editor such as Visual Studio Code can be used to write Python code. You can run a program from a terminal using the Python command followed by the filename.</p>
+            <pre>print("Hello, World!")</pre>
+            <p>Save the program in a file named hello.py. Depending on your system, run it using <b>python hello.py</b> or <b>python3 hello.py</b>. The output will be Hello, World!</p>
+
+            <h3>10. Python Syntax and Indentation</h3>
+            <p>Syntax refers to the rules used to write valid statements in a programming language. Python uses indentation to define blocks of code. Indentation is especially important in conditions, loops, functions, and classes. Incorrect indentation can cause an IndentationError.</p>
+            <pre>if 10 &gt; 5:
+    print("10 is greater than 5")
+    print("This line is inside the if block")
+
+print("This line is outside the if block")</pre>
+            <p>Python commonly uses four spaces for each indentation level. Consistent indentation improves readability and prevents errors.</p>
+
+            <h3>11. Comments in Python</h3>
+            <p>Comments explain the purpose of code and are ignored by the Python interpreter. A single-line comment starts with the hash symbol (#). Triple-quoted strings are often used for documentation strings, called docstrings, when placed in the appropriate position.</p>
+            <pre># This is a single-line comment
+name = "Astha"  # This is an inline comment
+print(name)</pre>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ASSIGNMENTS (placeholder) -->
+      <section id="assignments" class="card section">
+        <h3>📝 3. Assignments</h3>
+        <p>Assignments will appear here.</p>
+      </section>
+
+      <!-- QUIZZES (placeholder) -->
+      <section id="quizzes" class="card section">
+        <h3>🧠 4. Quizzes</h3>
+        <p>Quizzes will appear here.</p>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function toggleModule(id){
+  document.getElementById(id).classList.toggle('active');
+}
+
+// Sidebar navigation
+document.querySelectorAll('.side-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.side-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var target = document.getElementById(btn.dataset.target);
+    if(target) target.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// Simple demo login (stored in browser localStorage only)
+var authSection = document.getElementById('authSection');
+var dashboard = document.getElementById('dashboard');
+var logoutBtn = document.getElementById('logoutBtn');
+var userInfo = document.getElementById('userInfo');
+var authMsg = document.getElementById('authMsg');
+
+function showDashboard(email, role){
+  authSection.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+  logoutBtn.classList.remove('hidden');
+  userInfo.textContent = email + ' (' + role + ') ';
+}
+
+function getUsers(){
+  try { return JSON.parse(localStorage.getItem('learnhubUsers')) || {}; }
+  catch(e){ return {}; }
+}
+
+document.getElementById('registerBtn').addEventListener('click', function(){
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var role = document.getElementById('role').value;
+  if(!email || !password){ authMsg.textContent = 'Please enter email and password.'; return; }
+  var users = getUsers();
+  if(users[email]){ authMsg.textContent = 'User already exists. Please login.'; return; }
+  users[email] = {password: password, role: role};
+  localStorage.setItem('learnhubUsers', JSON.stringify(users));
+  authMsg.textContent = 'Registered successfully! Now login.';
+});
+
+document.getElementById('loginBtn').addEventListener('click', function(){
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var users = getUsers();
+  if(users[email] && users[email].password === password){
+    localStorage.setItem('learnhubCurrent', email);
+    showDashboard(email, users[email].role);
+  } else {
+    authMsg.textContent = 'Invalid email or password.';
+  }
+});
+
+logoutBtn.addEventListener('click', function(){
+  localStorage.removeItem('learnhubCurrent');
+  location.reload();
+});
+
+(function(){
+  var current = localStorage.getItem('learnhubCurrent');
+  var users = getUsers();
+  if(current && users[current]) showDashboard(current, users[current].role);
+})();
+</script>
+
+</body>
+</html>
